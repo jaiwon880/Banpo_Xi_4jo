@@ -4,9 +4,8 @@ import glob
 
 @st.cache_data
 def read_data():
-    glob_pt = '/app/ml_project/web/static/*.csv'
+    glob_pt = 'web/static/*.csv'
     return pd.concat([pd.read_csv(p) for p in sorted(glob.glob(glob_pt))])
-
 
 def get_unique_list(data, index):
     return data.str.split(expand=True)[index].unique()
