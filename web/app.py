@@ -59,9 +59,11 @@ def col_():
             st.write("")
 
 
+
+col_()
+
 def contents():
     tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
-    col_()
     with tab0:
         background()
     with tab1: 
