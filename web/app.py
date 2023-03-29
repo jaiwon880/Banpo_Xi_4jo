@@ -232,6 +232,8 @@ def xgb():
     return model
 
 
+
+
 # LGBM 모델
 def lgbm():
     X_train,y_train,X_test,y_test = load_data()
@@ -240,7 +242,7 @@ def lgbm():
     for i in range(0,5):
         if i==0:
             continue
-        model = LGBMRegressor(num_leaves=7, max_depth=3, learning_rate=0.01)
+        model = LGBMRegressor(max_depth=13,learning_rate= 0.009480267802321527, n_estimators= 2566, min_child_samples=84, subsample=0.5742064444292969)
         model.fit(X_train,y_train)
 
         pred=model.predict(X_test)
