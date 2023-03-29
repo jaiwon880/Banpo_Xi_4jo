@@ -240,8 +240,7 @@ def lgbm():
     for i in range(0,5):
         if i==0:
             continue
-            # n_estimators=15, random_state=42,  num_iterations= 50
-        model = LGBMRegressor(num_leaves=15, max_depth=3, learning_rate=0.01)
+        model = LGBMRegressor(num_leaves=7, max_depth=3, learning_rate=0.01)
         model.fit(X_train,y_train)
 
         pred=model.predict(X_test)
