@@ -243,15 +243,21 @@ def lgbm():
         if i==0:
             continue
         model = LGBMRegressor()
-
         model.fit(X_train,y_train)
 
         pred=model.predict(X_test)
         rmse = mean_squared_error(y_test,pred)**0.5
-        models.append(rmse)
-
-    st.write(models)
-    st.write('모델의 예측 값',pred)
+        # 시각화
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='실제 값'))
+    fig.add_trace(go.Scatter(x=list(range(len(pred))), y=pred, mode='lines', name='모델 예측 값'))
+    fig.update_layout(title='LGBM 모델 예측 결과',
+                    xaxis_title='데이터 인덱스',
+                    yaxis_title='예측값')
+    st.plotly_chart(fig)
+    st.write('모델의 RMSE:', rmse)
+    
+    return model
 
 
 if __name__ == '__main__':
