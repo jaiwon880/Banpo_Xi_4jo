@@ -242,6 +242,7 @@ def contents():
             tab6.subheader("LightGBM")
             lgbm()
     except:
+        pass
 
 
 if __name__ == '__main__':
