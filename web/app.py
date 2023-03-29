@@ -237,21 +237,31 @@ def xgb():
 # LGBM 모델
 def lgbm():
     X_train,y_train,X_test,y_test = load_data()
+    
+    model_lgb = LGBMRegressor(num_leaves=16, max_depth=4, learning_rate=0.1)
+    model_lgb.fit(X_train,y_train)
 
-    model = LGBMRegressor(learning_rate=0.01, num_leaves=31, max_depth=5)
-    model.fit(X_train,y_train)
-
-    pred=model.predict(X_test)
+    pred= model_lgb.predict(X_test)
     rmse = mean_squared_error(y_test,pred)**0.5
-        # 시각화
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='실제 값'))
-    fig.add_trace(go.Scatter(x=list(range(len(pred))), y=pred, mode='lines', name='모델 예측 값'))
-    fig.update_layout(title='LGBM 모델 예측 결과',
-                    xaxis_title='데이터 인덱스',
-                    yaxis_title='예측값')
-    st.plotly_chart(fig)
-    st.write('모델의 RMSE:', rmse)
+
+
+    model_lgb.feature_importances_
+    # feature_imp = pd.DataFrame({'features': X_train.columns, 'values': model_lgb.feature_importances_})
+    # plt.figure(figsize=(10, 5))
+    # sns.barplot(x='values', y='features',
+    #             data=feature_imp.sort_values(by='values', ascending=False).head(10))
+    # plt.show()
+     
+    # 시각화
+    # fig = go.Figure()
+    # fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='실제 값'))
+    # fig.add_trace(go.Scatter(x=list(range(len(pred))), y=pred, mode='lines', name='모델 예측 값'))
+    # fig.update_layout(title='LGBM 모델 예측 결과',
+    #                 xaxis_title='데이터 인덱스',
+    #                 yaxis_title='예측값')
+    # st.plotly_chart(fig)
+    # st.write('모델의 RMSE:', rmse)
+
     
     return model
 
