@@ -220,27 +220,28 @@ col_()
 
 def contents():
     tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
-    with tab0:
-        background()
-    with tab1: 
-        tab1.subheader("Linear Regression")
-        lr() 
-    with tab2: 
-        tab2.subheader("KNN")
-        knn()
-    with tab3:
-        tab3.subheader("Decision Tree")
-        dct()
-    with tab4:
-        tab4.subheader("Random Forest") 
-        rdf()
-    with tab5:
-        tab5.subheader("XGBoost") 
-        xgb()
-    with tab6: 
-        tab6.subheader("LightGBM")
-        lgbm()
-
+    try:
+        with tab0:
+            background()
+        with tab1: 
+            tab1.subheader("Linear Regression")
+            lr() 
+        with tab2: 
+            tab2.subheader("KNN")
+            knn()
+        with tab3:
+            tab3.subheader("Decision Tree")
+            dct()
+        with tab4:
+            tab4.subheader("Random Forest") 
+            rdf()
+        with tab5:
+            tab5.subheader("XGBoost") 
+            xgb()
+        with tab6: 
+            tab6.subheader("LightGBM")
+            lgbm()
+    except:
 
 
 if __name__ == '__main__':
