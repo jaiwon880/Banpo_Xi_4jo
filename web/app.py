@@ -95,8 +95,7 @@ def load_data():
 
 # lr 모델
 def lr():
-    X_train,y_train, X_test, y_test = load_data()
-
+    X_train,y_train,X_test,y_test = load_data()
     models = []
     for i in range(0,5):
         if i==0:
@@ -114,13 +113,7 @@ def lr():
 
 # knn 모델
 def knn():
-    datas = handle_preprocessing()
-    train = datas.loc[datas.index < '2023-01-01']
-    test = datas.loc[datas.index >= '2023-01-01']
-    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_train = train['평당가']
-    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_test = test['평당가']
+    X_train,y_train,X_test,y_test = load_data()
 
     models = []
     for i in range(0,5):
@@ -139,13 +132,7 @@ def knn():
 
 # 랜덤포레스트 모델
 def rdf():
-    datas = handle_preprocessing()
-    train = datas.loc[datas.index < '2023-01-01']
-    test = datas.loc[datas.index >= '2023-01-01']
-    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_train = train['평당가']
-    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_test = test['평당가']
+    X_train,y_train,X_test,y_test = load_data()
 
     models = []
     for i in range(0,5):
@@ -164,13 +151,7 @@ def rdf():
 
 # 결정트리 모델
 def dct():
-    datas = handle_preprocessing()
-    train = datas.loc[datas.index < '2023-01-01']
-    test = datas.loc[datas.index >= '2023-01-01']
-    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_train = train['평당가']
-    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_test = test['평당가']
+    X_train,y_train,X_test,y_test = load_data()
 
     models = []
     for i in range(0,5):
@@ -189,13 +170,7 @@ def dct():
 
 # XGBoost 모델
 def xgb():
-    datas = handle_preprocessing()
-    train = datas.loc[datas.index < '2023-01-01']
-    test = datas.loc[datas.index >= '2023-01-01']
-    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_train = train['평당가']
-    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_test = test['평당가']
+    X_train,y_train,X_test,y_test = load_data()
 
     models = []
     for i in range(0,5):
@@ -213,13 +188,7 @@ def xgb():
 
 # LGBM 모델
 def lgbm():
-    datas = handle_preprocessing()
-    train = datas.loc[datas.index < '2023-01-01']
-    test = datas.loc[datas.index >= '2023-01-01']
-    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_train = train['평당가']
-    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
-    y_test = test['평당가']
+    X_train,y_train,X_test,y_test = load_data()
 
     models = []
     for i in range(0,5):
