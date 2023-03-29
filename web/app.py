@@ -129,57 +129,65 @@ def load_data():
 def lr():
     X_train,y_train,X_test,y_test = load_data()
     models = []
-    for i in range(0,5):
-        if i==0:
-            continue
-        model = LinearRegression(n_jobs=-1)
-        model.fit(X_train,y_train)
+    model = LinearRegression()
+    model.fit(X_train,y_train)
 
-        pred= model.predict(X_test)
-        rmse = mean_squared_error(y_test,pred)**0.5
-        
-        models.append(rmse)
-    st.write('모델의 RMSE 값',models)
+    pred= model.predict(X_test)
+    rmse = mean_squared_error(y_test,pred)**0.5
+    st.write('모델의 RMSE 값',rmse)
     st.write('모델의 예측 값',pred)
+
+    return model
 
 
 # knn 모델
 def knn():
-    X_train,y_train,X_test,y_test = load_data()
+    X_train, y_train, X_test, y_test = load_data()
+    r2_scores=[]
+    rmse_ = []
 
-    models = []
-    for i in range(0,5):
-        if i==0:
-            continue
-        model = KNeighborsRegressor(n_neighbors=i,weights='distance')
+    for i in range(1,6):
+        model = KNeighborsRegressor(i,weights='distance')
         model.fit(X_train,y_train)
+        pred = model.predict(X_test)
 
-        pred=model.predict(X_test)
         rmse = mean_squared_error(y_test,pred)**0.5
-        
-        models.append(rmse)
+        r2=r2_score(y_test,pred)
+        r2_scores.append(r2)
+        rmse_.append(rmse)
 
-    st.write(models)
-    st.write('모델의 예측 값',pred)
+    st.write(r2_scores)
+    st.write(rmse_)
+
+    return model
 
 # 랜덤포레스트 모델
 def rdf():
     X_train,y_train,X_test,y_test = load_data()
-
+    rmse_ = []
     models = []
-    for i in range(0,5):
-        if i==0:
-            continue
-        model = RandomForestRegressor(n_estimators=150,max_depth=4)
-        model.fit(X_train,y_train)
+    min_estimators = 50
+    max_estimators = 200
+    step = 50
+    n_estimators_range = range(min_estimators, max_estimators+1, step)
+    r2_scores = []
+    for n_estimators in n_estimators_range:
+        model = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
 
-        pred=model.predict(X_test)
-        rmse = mean_squared_error(y_test,pred)**0.5
-        
-        models.append(rmse)
-
-    st.write(models)
-    st.write('모델의 예측 값',pred)
+        rmse = mean_squared_error(y_test,y_pred)**0.5
+        rmse_.append(rmse)
+        r2 = r2_score(y_test, y_pred)
+        r2_scores.append(r2)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='실제값'))
+    fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='예측값'))
+    fig.update_layout(title='XGBoost 모델 예측 결과',
+                    xaxis_title='데이터 인덱스',
+                    yaxis_title='예측값')
+    st.plotly_chart(fig)
+    return model
 
 # 결정트리 모델
 def dct():
@@ -200,23 +208,29 @@ def dct():
     st.write(models)
     st.write('모델의 예측 값',pred)
 
+    return model
+
 # XGBoost 모델
 def xgb():
-    X_train,y_train,X_test,y_test = load_data()
+    X_train, y_train, X_test, y_test = load_data()
+    # 모델 훈련 및 예측
+    model = XGBRegressor(n_estimators=200, learning_rate=0.1, max_depth=3, min_child_weight=3, colsample_bytree=1)
+    model.fit(X_train, y_train)
+    pred = model.predict(X_test)
+    # 모델 성능 평가
+    rmse = mean_squared_error(y_test, pred)**0.5
+    # 시각화
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='실제 값'))
+    fig.add_trace(go.Scatter(x=list(range(len(pred))), y=pred, mode='lines', name='모델 예측 값'))
+    fig.update_layout(title='XGBoost 모델 예측 결과',
+                    xaxis_title='데이터 인덱스',
+                    yaxis_title='예측값')
+    st.plotly_chart(fig)
+    st.write('모델의 RMSE:', rmse)
+    
+    return model
 
-    models = []
-    for i in range(0,5):
-        if i==0:
-            continue
-        model = XGBRegressor(n_estimators=200, learning_rate=0.1, max_depth=3, min_child_weight=3, colsample_bytree=1)
-        model.fit(X_train,y_train)
-
-        pred=model.predict(X_test)
-        rmse = mean_squared_error(y_test,pred)**0.5
-        models.append(rmse)
-
-    st.write(models)
-    st.write('모델의 예측 값',pred)
 
 # LGBM 모델
 def lgbm():
