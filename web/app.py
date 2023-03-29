@@ -1,15 +1,15 @@
 import streamlit as st
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
+import xgboost as xgb
 from lightgbm import LGBMRegressor
 from xgboost import XGBRegressor
-import xgboost as xgb
 from data import get_city_list, get_gu_list, get_town_list, get_village_list
-from service import get_filtered_data, handle_preprocessing
+from service import get_filtered_data, handle_preprocessing, read_data
 import datetime
 import pandas as pd
 import numpy as np
@@ -19,7 +19,6 @@ import plotly.graph_objs as go
 import plotly.io as pio
 import plotly.express as px
 import matplotlib.pyplot as plt
-
 
 def main():
     with st.sidebar: sidebar()
