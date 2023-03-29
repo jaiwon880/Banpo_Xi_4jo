@@ -238,8 +238,7 @@ def xgb():
 def lgbm():
     X_train,y_train,X_test,y_test = load_data()
 
-    models = []
-    model = LGBMRegressor()
+    model = LGBMRegressor(learning_rate=0.01, num_leaves=31, max_depth=5)
     model.fit(X_train,y_train)
 
     pred=model.predict(X_test)
