@@ -1,11 +1,11 @@
 import streamlit as st
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 import xgboost as xgb
+from sklearn.model_selection import train_test_split
 from lightgbm import LGBMRegressor
 from xgboost import XGBRegressor
 from data import get_city_list, get_gu_list, get_town_list, get_village_list
