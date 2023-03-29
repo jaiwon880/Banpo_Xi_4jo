@@ -1,8 +1,13 @@
 streamlit
 pandas
 numpy
-data
-
 statsmodels
+sklearn
 plotly
 matplotlib
+scikit-learn==0.24.2
+mlxtend
+xgboost
+lightgbm
+decision_tree
+joblib
