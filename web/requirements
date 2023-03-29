@@ -9,3 +9,4 @@ mlxtend
 xgboost
 lightgbm
 decision_tree
+joblib
