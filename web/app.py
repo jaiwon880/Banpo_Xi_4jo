@@ -242,10 +242,7 @@ def lgbm():
     for i in range(0,5):
         if i==0:
             continue
-        model = LGBMRegressor(
-            max_depth=5,
-            learning_rate= 0.01,
-            num_leaves=31)
+        model = LGBMRegressor()
 
         model.fit(X_train,y_train)
 
