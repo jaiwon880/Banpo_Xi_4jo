@@ -20,6 +20,7 @@ def main():
     with st.sidebar: sidebar()
     contents()
 
+
 def sidebar() :
     title =  '지역을 선택해주세요.'
     st.title(title)
@@ -58,46 +59,23 @@ def col_():
         else:
             st.write("")
 
-
-
-col_()
-
-def contents():
-    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
-    with tab0:
-        background()
-    with tab1: 
-        tab1.subheader("Linear Regression")
-        lr() 
-    with tab2: 
-        tab2.subheader("KNN")
-        knn()
-    with tab3:
-        tab3.subheader("Decision Tree")
-        dct()
-    with tab4:
-        tab4.subheader("Random Forest") 
-        rdf()
-    with tab5:
-        tab5.subheader("XGBoost") 
-        xgb()
-    with tab6: 
-        tab6.subheader("LightGBM")
-        lgbm()
         
 
 def background():
     st.dataframe(handle_preprocessing())
 
-# lr 모델
-def lr():
-    datas = handle_preprocessing()
+
+def load_data():
     train = datas.loc[datas.index < '2023-01-01']
     test = datas.loc[datas.index >= '2023-01-01']
     X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
     y_train = train['평당가']
     X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
     y_test = test['평당가']
+
+# lr 모델
+def lr():
+    X_train,y_train, X_test, y_test = load_data()
 
     models = []
     for i in range(0,5):
@@ -203,7 +181,7 @@ def xgb():
     for i in range(0,5):
         if i==0:
             continue
-        model = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=100)
+        model = XGBRegressor(n_estimators=200, learning_rate=0.1, max_depth=3, min_child_weight=3, colsample_bytree=1)
         model.fit(X_train,y_train)
 
         pred=model.predict(X_test)
@@ -236,6 +214,34 @@ def lgbm():
 
     st.write(models)
     st.write('모델의 예측 값',pred)
+
+
+col_()
+
+def contents():
+    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
+    with tab0:
+        background()
+    with tab1: 
+        tab1.subheader("Linear Regression")
+        lr() 
+    with tab2: 
+        tab2.subheader("KNN")
+        knn()
+    with tab3:
+        tab3.subheader("Decision Tree")
+        dct()
+    with tab4:
+        tab4.subheader("Random Forest") 
+        rdf()
+    with tab5:
+        tab5.subheader("XGBoost") 
+        xgb()
+    with tab6: 
+        tab6.subheader("LightGBM")
+        lgbm()
+
+
 
 if __name__ == '__main__':
     main()
