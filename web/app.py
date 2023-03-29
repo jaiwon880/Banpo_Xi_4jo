@@ -44,6 +44,7 @@ def sidebar() :
     else:
         st.session_state['village'] = ''
 
+
 def col_():
     area = 0
     year_apt = 0
@@ -51,8 +52,6 @@ def col_():
     col1,col2 = st.columns([1, 1])
     with col1 :
         area = st.slider('전용 면적을 선택해 주세요', 0.0, 300.0)
-        # st.write("전용 면적 ", area, '(㎡)을 선택하셨습니다.')
-        st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
 
         options = {
             "중개거래": 0,
@@ -63,7 +62,6 @@ def col_():
         st.markdown(f"<div style='margin-top: 25px; margin-right: 20px;'></div>", unsafe_allow_html=True)
     with col2 :
         year_apt = st.slider('건축 년도를 선택해 주세요', min_value = 1940, max_value=2023,step=1)
-        # st.write("건축 년도 ", year_of_construction, '년을 선택하셨습니다.')
         st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
         if st.button('현재 금리 적용'):
             today = datetime.date.today()
@@ -78,6 +76,42 @@ def col_():
         return input_data
 
     
+def contents():
+    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['df',"Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
+    data = read_data()
+    # try:
+    with tab0:
+        background()
+        aa=col_()
+        st.write(aa)
+
+    with tab1: 
+        tab1.subheader("📈Linear Regression📈")
+        lr_model = lr()
+        Linear_(lr_model,aa)
+    with tab2: 
+        tab2.subheader("🤝KNN🤝")
+        knn_model = knn()
+        KNN_(knn_model,aa)
+    with tab3:
+        tab3.subheader("🌲Decision Tree🌲")
+        decision = dct()
+        DCT_(decision,aa)
+    with tab4:
+        tab4.subheader("🌳Random Forest🌳") 
+        rf = rdf()
+        RDF_(rf,aa)
+    with tab5:
+        tab5.subheader("💪XGBoost💪") 
+        xgb_model = xgb()
+        XGB_(xgb_model,aa)
+    with tab6: 
+        tab6.subheader("⚡️LightGBM⚡️")
+        lgbmR = lgbm()
+        LGBM_(lgbmR,aa)
+    # except:
+    #     pass
+
 def background():
     st.dataframe(handle_preprocessing())
 
@@ -89,6 +123,7 @@ def load_data():
     y_train = train['평당가']
     X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
     y_test = test['평당가']
+
     return X_train,y_train,X_test,y_test
 
 # lr 모델
@@ -202,42 +237,6 @@ def lgbm():
     st.write(models)
     st.write('모델의 예측 값',pred)
 
-
-def contents():
-    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['df',"Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
-    data = read_data()
-    try:
-        with tab0:
-            background()
-            aa=col_()
-            st.write(aa)
-
-        with tab1: 
-            tab1.subheader("📈Linear Regression📈")
-            lr_model = lr()
-            Linear_(lr_model,aa)
-        with tab2: 
-            tab2.subheader("🤝KNN🤝")
-            knn_model = knn()
-            KNN_(knn_model,aa)
-        with tab3:
-            tab3.subheader("🌲Decision Tree🌲")
-            decision = dct()
-            DCT_(decision,aa)
-        with tab4:
-            tab4.subheader("🌳Random Forest🌳") 
-            rf = rdf()
-            RDF_(rf,aa)
-        with tab5:
-            tab5.subheader("💪XGBoost💪") 
-            xgb_model = xgb()
-            XGB_(xgb_model,aa)
-        with tab6: 
-            tab6.subheader("⚡️LightGBM⚡️")
-            lgbmR = lgbm()
-            LGBM_(lgbmR,aa)
-    except:
-        pass
 
 if __name__ == '__main__':
     main()
