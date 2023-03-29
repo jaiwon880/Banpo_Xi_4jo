@@ -239,14 +239,11 @@ def lgbm():
     X_train,y_train,X_test,y_test = load_data()
 
     models = []
-    for i in range(0,5):
-        if i==0:
-            continue
-        model = LGBMRegressor()
-        model.fit(X_train,y_train)
+    model = LGBMRegressor()
+    model.fit(X_train,y_train)
 
-        pred=model.predict(X_test)
-        rmse = mean_squared_error(y_test,pred)**0.5
+    pred=model.predict(X_test)
+    rmse = mean_squared_error(y_test,pred)**0.5
         # 시각화
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='실제 값'))
