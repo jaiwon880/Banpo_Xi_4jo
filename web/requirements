@@ -1,7 +1,11 @@
 streamlit
 pandas
 numpy
-data
-
 statsmodels
+plotly
 matplotlib
+scikit-learn==0.24.2
+mlxtend
+xgboost
+lightgbm
+decision_tree

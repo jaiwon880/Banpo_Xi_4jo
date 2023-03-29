@@ -1,164 +1,244 @@
-import requests
 import streamlit as st
-import pandas as pd
-import numpy as np
-import os
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+import xgboost as xgb
+from lightgbm import LGBMRegressor
+from xgboost import XGBRegressor
+from data import get_city_list, get_gu_list, get_town_list, get_village_list
+from service import get_filtered_data, handle_preprocessing
 import datetime
 
-# import xgboost as xgb
-# xgb_model = xgb.XGBRegressor()
-count = 0
+def main():
+    with st.sidebar: sidebar()
+    contents()
 
-title = "🏢 반포자이 사조"
-text = "(2022년 3월 - 2023년 2월)"
+def sidebar() :
+    title =  '지역을 선택해주세요.'
+    st.title(title)
+    label_city_list = '시/도 선택'
+    label_gu_list = '시/군/구 선택'
+    label_town_list = '읍/면/동 선택'
+    city_choice = st.selectbox(label_city_list, get_city_list(),
+    key='city')
+    gu_choice = st.selectbox(label_gu_list, get_gu_list(city_choice),
+    key='gu')
+    town_choice = st.selectbox(label_town_list, get_town_list(city_choice, gu_choice),
+    key='town')
+    vl = get_village_list(city_choice, gu_choice, town_choice)
+    if len(vl)>0:
+        village_choice = st.selectbox(label_town_list, vl, key='village')
 
-st.markdown(f"<div style='font-weight:bold; font-size:35px; text-align:center'>{title}</div>", unsafe_allow_html=True)
-st.markdown(f"<div style='text-align:center; font-size:20px'>{text}</div>", unsafe_allow_html=True)
-
-st.markdown(f"<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
-
-
-df_apt1 = pd.read_csv('Data/아파트_매매__실거래가_20230321134107_1월.csv')
-df_apt2 = pd.read_csv('Data/아파트_매매__실거래가_20230321134120_2월.csv')
-
-df_apt1["거래금액(만원)"] = df_apt1["거래금액(만원)"].str.replace(",", "").astype(int) # 거래금액 컬럼의 쉼표를 제거하고 정수형으로 변환
-df_apt1["평단가"] = (df_apt1["거래금액(만원)"] / df_apt1["전용면적(㎡)"]) / 3.3 # 평당가 계산하여 새로운 컬럼 추가
-
-
-
-# 사이드바 // 메인에서 df의 값을 받아온다. main -> create_df -> side_bar
-def side_bar(df1,df2) :
-
-    s_bar = st.sidebar
-    s_bar.title('지역을 선택해주세요.')
-
-    # area에 df에서 열 중에서 중복된 값들을 제외하고 리스트로 변환
-    # 시/도 선택
-
-    city_list = df1['시군구'].apply(lambda x: x.split()[0]).unique()
-    city_choice = s_bar.selectbox('시/도 선택', city_list)
-
-    # 시/군/구 선택
-    gu_list = df1['시군구'][df1['시군구'].str.contains(city_choice)].apply(lambda x: x.split()[1]).unique()
-    gu_choice = s_bar.selectbox('시/군/구 선택', gu_list)
-
-    # 읍/면/동 선택
-    town_list = df1['시군구'][df1['시군구'].str.contains(city_choice) & df1['시군구'].str.contains(gu_choice)].apply(lambda x: x.split()[2]).unique()
-    town_choice = s_bar.selectbox('읍/면/동 선택', town_list)
-    
-    # 리 선택
-    try :
-        village_list = df1['시군구'][df1['시군구'].str.contains(city_choice) & df1['시군구'].str.contains(gu_choice) & df1['시군구'].str.contains(town_choice)].apply(lambda x: x.split()[3]).unique()
-        village_choice = s_bar.selectbox('리 선택', village_list)
-        Jan_result = df1[df1['시군구'].str.contains(city_choice) & df1['시군구'].str.contains(gu_choice) & df1['시군구'].str.contains(town_choice) & df1['시군구'].str.contains(village_choice)]
-        Feb_result = df2[df2['시군구'].str.contains(city_choice) & df2['시군구'].str.contains(gu_choice) & df2['시군구'].str.contains(town_choice) & df2['시군구'].str.contains(village_choice)]
-    except :
-        Jan_result = df1[df1['시군구'].str.contains(city_choice) & df1['시군구'].str.contains(gu_choice) & df1['시군구'].str.contains(town_choice)]
-        Feb_result = df2[df2['시군구'].str.contains(city_choice) & df2['시군구'].str.contains(gu_choice) & df2['시군구'].str.contains(town_choice)]
-
-    
-    # 선택된 지역의 데이터만 추출
-    # result 데이터프레임의 인덱스를 0->1부터 시작하도록 변경
-    Jan_result.index = np.arange(1,len(Jan_result) + 1)
-    Feb_result.index = np.arange(1,len(Feb_result) + 1)
-    result = pd.concat([Jan_result,Feb_result])
-    # st.dataframe(result)
-
-    return Jan_result, Feb_result
-
-df1,df2 = side_bar(df_apt1,df_apt2)
-
-
-tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Linear Regression", "KNN", "Decision Tree", "Random Forest", "XGBoost", "LightGBM", "Team"])
-
-    
-
-def col_(i):
-    col1,col2 = st.columns([1, 1])
-    with col1 :
-        # column 1 에 담을 내용
-        st.slider('전용 면적을 선택해 주세요', 0.0, 300.0,key =i)
-        # st.write("전용 면적 ", area, '(㎡)을 선택하셨습니다.')
-
-        st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
-
-        genre = st.radio(
-            "거래 유형을 선택해 주세요 (중개거래, 직거래)",
-            ('중개거래', '직거래'), key=12+i )
-
-        st.markdown(f"<div style='margin-top: 25px; margin-right: 20px;'></div>", unsafe_allow_html=True)
-
-
-    with col2 :
-        # column 2 에 담을 내용
-        st.slider('건축 년도를 선택해 주세요', min_value = 1940, max_value=2023,step=1,key=i+1)
-        # st.write("건축 년도 ", year_of_construction, '년을 선택하셨습니다.')
-
-        st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
-
-        if st.button('현재 금리 적용', key=23+i):
-            today = datetime.date.today()
-            st.write(f'{today}')
-        else:
-            today = datetime.date.today()
-
-    if st.button('예측', key=34+i):
-        st.write("아파트 실거래가 예측 값 입니다")
     else:
-        st.write("")
+        st.session_state['village'] = ''
 
 
-with tab0:
-    tab0.subheader("📈Linear Regression📈")
-    st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
-    col_(0)
+def col_():
+        col1,col2 = st.columns([1, 1])
+        with col1 :
+            st.slider('전용 면적을 선택해 주세요', 0.0, 300.0)
+            # st.write("전용 면적 ", area, '(㎡)을 선택하셨습니다.')
+            st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+            genre = st.radio(
+                "거래 유형을 선택해 주세요 (중개거래, 직거래)",
+                ('중개거래', '직거래'))
+            st.markdown(f"<div style='margin-top: 25px; margin-right: 20px;'></div>", unsafe_allow_html=True)
+        with col2 :
+            st.slider('건축 년도를 선택해 주세요', min_value = 1940, max_value=2023,step=1)
+            # st.write("건축 년도 ", year_of_construction, '년을 선택하셨습니다.')
+            st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+            if st.button('현재 금리 적용'):
+                today = datetime.date.today()
+            else:
+                today = datetime.date.today()
+        if st.button('예측'):
+            st.write("아파트 실거래가 예측 값 입니다")
+        else:
+            st.write("")
 
 
-with tab1:
-    tab1.subheader("🤝KNN🤝")
-    col_(2)
+def contents():
+    # st.write(get_filtered_data())
+    # st.write(handle_preprocessing())
+
+    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['df',"Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
     
-         
-with tab2:
-    tab2.subheader("🌲Decision Tree🌲")
-    col_(4)
+    with tab0:
+        background()
+        col_()
+    with tab1: 
+        tab1.subheader("📈Linear Regression📈")
+        lr() 
+    with tab2: 
+        tab2.subheader("🤝KNN🤝")
+        knn()
+    with tab3:
+        tab3.subheader("🌲Decision Tree🌲")
+        dct()
+    with tab4:
+        tab4.subheader("🌳Random Forest🌳") 
+        rdf()
+    with tab5:
+        tab5.subheader("💪XGBoost💪") 
+        xgb()
+    with tab6: 
+        tab6.subheader("⚡️LightGBM⚡️")
+        lgbm()
+        
 
-    
-with tab3:
-    tab3.subheader("🌳Random Forest🌳")
-    col_(6)
+def background():
+    st.dataframe(handle_preprocessing())
 
-with tab4:
-    tab4.subheader("💪XGBoost💪")
-    col_(8)
+# lr 모델
+def lr():
+    datas = handle_preprocessing()
+    train = datas.loc[datas.index < '2023-01-01']
+    test = datas.loc[datas.index >= '2023-01-01']
+    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_train = train['평당가']
+    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_test = test['평당가']
+
+    models = []
+    for i in range(0,5):
+        if i==0:
+            continue
+        model = LinearRegression(n_jobs=-1)
+        model.fit(X_train,y_train)
+
+        pred= model.predict(X_test)
+        rmse = mean_squared_error(y_test,pred)**0.5
+        
+        models.append(rmse)
+    st.write('모델의 RMSE 값',models)
+    st.write('모델의 예측 값',pred)
 
 
-with tab5:
-    tab5.subheader("⚡️LightGBM⚡️")
-    col_(10)
+# knn 모델
+def knn():
+    datas = handle_preprocessing()
+    train = datas.loc[datas.index < '2023-01-01']
+    test = datas.loc[datas.index >= '2023-01-01']
+    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_train = train['평당가']
+    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_test = test['평당가']
 
-with tab6:
+    models = []
+    for i in range(0,5):
+        if i==0:
+            continue
+        model = KNeighborsRegressor(n_neighbors=i,weights='distance')
+        model.fit(X_train,y_train)
 
+        pred=model.predict(X_test)
+        rmse = mean_squared_error(y_test,pred)**0.5
+        
+        models.append(rmse)
 
-    '''
-    ### 집사조😋
-    | 이름 | 역할 | 모델링 |
-    | :---: | :---: | :---: |
-    | 서상원 | **팀장**, 발표, 데이터 수집 및 전처리, Streamlit, ML | KNN |
-    | 조성훈 | 데이터 수집 및 전처리, ML | Decision Tree |
-    | 곽희범 | 데이터 수집 및 전처리, ML | Random Forest |
-    | 이영미 | 데이터 수집 및 전처리, ML | LightGBM |
-    | 한재원 | 발표, 데이터 수집 및 전처리, Streamlit, ML | XGBoost |
-    | 박상원 | 데이터 수집 및 전처리, ML | Linear Regression |
-    | 이영재 | 아이디어 제공 | |
-    | 최용재 | 아이디어 제공, 정보제공 | |
-    '''
+    st.write(models)
+    st.write('모델의 예측 값',pred)
 
-    '''
-    ---
-    ### 
-    * 데이터출처 : 국토교통부 실거래가 공개 시스템
-    * 아파트 실거래가 2022년 3월 ~ 2023년 2월까지의 데이터 입니다.
-    > [데이터 다운로드]("http://rtdown.molit.go.kr/")
-    ---
-    '''
+# 랜덤포레스트 모델
+def rdf():
+    datas = handle_preprocessing()
+    train = datas.loc[datas.index < '2023-01-01']
+    test = datas.loc[datas.index >= '2023-01-01']
+    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_train = train['평당가']
+    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_test = test['평당가']
+
+    models = []
+    for i in range(0,5):
+        if i==0:
+            continue
+        model = RandomForestRegressor(n_estimators=150,max_depth=4)
+        model.fit(X_train,y_train)
+
+        pred=model.predict(X_test)
+        rmse = mean_squared_error(y_test,pred)**0.5
+        
+        models.append(rmse)
+
+    st.write(models)
+    st.write('모델의 예측 값',pred)
+
+# 결정트리 모델
+def dct():
+    datas = handle_preprocessing()
+    train = datas.loc[datas.index < '2023-01-01']
+    test = datas.loc[datas.index >= '2023-01-01']
+    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_train = train['평당가']
+    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_test = test['평당가']
+
+    models = []
+    for i in range(0,5):
+        if i==0:
+            continue
+        model = DecisionTreeRegressor(random_state=i)
+        model.fit(X_train,y_train)
+
+        pred=model.predict(X_test)
+        rmse = mean_squared_error(y_test,pred)**0.5
+        
+        models.append(rmse)
+
+    st.write(models)
+    st.write('모델의 예측 값',pred)
+
+# XGBoost 모델
+def xgb():
+    datas = handle_preprocessing()
+    train = datas.loc[datas.index < '2023-01-01']
+    test = datas.loc[datas.index >= '2023-01-01']
+    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_train = train['평당가']
+    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_test = test['평당가']
+
+    models = []
+    for i in range(0,5):
+        if i==0:
+            continue
+        model = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=100)
+        model.fit(X_train,y_train)
+
+        pred=model.predict(X_test)
+        rmse = mean_squared_error(y_test,pred)**0.5
+        models.append(rmse)
+
+    st.write(models)
+    st.write('모델의 예측 값',pred)
+
+# LGBM 모델
+def lgbm():
+    datas = handle_preprocessing()
+    train = datas.loc[datas.index < '2023-01-01']
+    test = datas.loc[datas.index >= '2023-01-01']
+    X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_train = train['평당가']
+    X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
+    y_test = test['평당가']
+
+    models = []
+    for i in range(0,5):
+        if i==0:
+            continue
+        model = LGBMRegressor(num_leaves=16, max_depth=4, learning_rate=0.1)
+        model.fit(X_train,y_train)
+
+        pred=model.predict(X_test)
+        rmse = mean_squared_error(y_test,pred)**0.5
+        models.append(rmse)
+
+    st.write(models)
+    st.write('모델의 예측 값',pred)
+
+if __name__ == '__main__':
+    main()
