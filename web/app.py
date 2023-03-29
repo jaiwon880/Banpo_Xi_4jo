@@ -77,8 +77,7 @@ def col_():
                                     columns = ['전용면적(㎡)','건축년도','거래유형','금리'])
         return input_data
 
-        
-
+    
 def background():
     st.dataframe(handle_preprocessing())
 
@@ -90,7 +89,6 @@ def load_data():
     y_train = train['평당가']
     X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
     y_test = test['평당가']
-
     return X_train,y_train,X_test,y_test
 
 # lr 모델
