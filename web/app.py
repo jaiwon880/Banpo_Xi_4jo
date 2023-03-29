@@ -14,12 +14,16 @@ import datetime
 import pandas as pd
 import numpy as np
 import joblib
+from ML_Model import *
+import plotly.graph_objs as go
+import plotly.io as pio
+import plotly.express as px
+import matplotlib.pyplot as plt
 
 
 def main():
     with st.sidebar: sidebar()
     contents()
-
 
 def sidebar() :
     title =  '지역을 선택해주세요.'
@@ -40,38 +44,54 @@ def sidebar() :
     else:
         st.session_state['village'] = ''
 
-
 def col_():
-        col1,col2 = st.columns([1, 1])
-        with col1 :
-            st.slider('전용 면적을 선택해 주세요', 0.0, 300.0)
-            genre = st.radio(
-                "거래 유형을 선택해 주세요",
-                ('중개거래', '직거래'))
-        with col2 :
-            st.slider('건축 년도를 선택해 주세요', min_value = 1940, max_value=2023, step=1)
-            if st.button('현재 금리 적용'):
-                today = datetime.date.today()
-            else:
-                today = datetime.date.today()
-        if st.button('예측'):
-            st.write("아파트 실거래가 예측 값 입니다")
+    area = 0
+    year_apt = 0
+    genre = 0
+    col1,col2 = st.columns([1, 1])
+    with col1 :
+        area = st.slider('전용 면적을 선택해 주세요', 0.0, 300.0)
+        # st.write("전용 면적 ", area, '(㎡)을 선택하셨습니다.')
+        st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+
+        options = {
+            "중개거래": 0,
+            "직거래": 1,
+        }
+        genre = st.radio("거래 유형을 선택해 주세요", list(options.keys()))
+        genre = options[genre]
+        st.markdown(f"<div style='margin-top: 25px; margin-right: 20px;'></div>", unsafe_allow_html=True)
+    with col2 :
+        year_apt = st.slider('건축 년도를 선택해 주세요', min_value = 1940, max_value=2023,step=1)
+        # st.write("건축 년도 ", year_of_construction, '년을 선택하셨습니다.')
+        st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+        if st.button('현재 금리 적용'):
+            today = datetime.date.today()
+            st.write(f'현재 선택한 금리는 {3.75} 입니다')
         else:
-            st.write("")
+            today = datetime.date.today()
+
+    if st.button('입력 완료',key='set_data'):
+        st.write("입력이 완료 되었습니당")            
+        input_data = pd.DataFrame(np.array([area,year_apt,genre,3.75]).reshape(1,-1),
+                                    columns = ['전용면적(㎡)','건축년도','거래유형','금리'])
+        return input_data
 
         
 
 def background():
     st.dataframe(handle_preprocessing())
 
-
 def load_data():
+    datas = handle_preprocessing()
     train = datas.loc[datas.index < '2023-01-01']
     test = datas.loc[datas.index >= '2023-01-01']
     X_train = train.drop(['시군구','거래금액(만원)','평당가'],axis=1)
     y_train = train['평당가']
     X_test = test.drop(['시군구','거래금액(만원)','평당가'],axis=1)
     y_test = test['평당가']
+
+    return X_train,y_train,X_test,y_test
 
 # lr 모델
 def lr():
@@ -221,32 +241,40 @@ col_()
 
 
 def contents():
-    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        'DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
+    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['df',"Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
+    data = read_data()
     try:
         with tab0:
             background()
+            aa=col_()
+            st.write(aa)
+
         with tab1: 
-            tab1.subheader("Linear Regression")
-            lr() 
+            tab1.subheader("📈Linear Regression📈")
+            lr_model = lr()
+            Linear_(lr_model,aa)
         with tab2: 
-            tab2.subheader("KNN")
-            knn()
+            tab2.subheader("🤝KNN🤝")
+            knn_model = knn()
+            KNN_(knn_model,aa)
         with tab3:
-            tab3.subheader("Decision Tree")
-            dct()
+            tab3.subheader("🌲Decision Tree🌲")
+            decision = dct()
+            DCT_(decision,aa)
         with tab4:
-            tab4.subheader("Random Forest") 
-            rdf()
+            tab4.subheader("🌳Random Forest🌳") 
+            rf = rdf()
+            RDF_(rf,aa)
         with tab5:
-            tab5.subheader("XGBoost") 
-            xgb()
+            tab5.subheader("💪XGBoost💪") 
+            xgb_model = xgb()
+            XGB_(xgb_model,aa)
         with tab6: 
-            tab6.subheader("LightGBM")
-            lgbm()
+            tab6.subheader("⚡️LightGBM⚡️")
+            lgbmR = lgbm()
+            LGBM_(lgbmR,aa)
     except:
         pass
-
 
 if __name__ == '__main__':
     main()
