@@ -64,10 +64,9 @@ def col_():
 
 def contents():
     tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
-    
     with tab0:
         background()
-        col_()
+        col_(0)
     with tab1: 
         tab1.subheader("📈Linear Regression📈")
         lr() 
