@@ -44,14 +44,11 @@ def col_():
         col1,col2 = st.columns([1, 1])
         with col1 :
             st.slider('전용 면적을 선택해 주세요', 0.0, 300.0)
-            st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
             genre = st.radio(
-                "거래 유형을 선택해 주세요 (중개거래, 직거래)",
+                "거래 유형을 선택해 주세요",
                 ('중개거래', '직거래'))
-            st.markdown(f"<div style='margin-top: 25px; margin-right: 20px;'></div>", unsafe_allow_html=True)
         with col2 :
-            st.slider('건축 년도를 선택해 주세요', min_value = 1940, max_value=2023,step=1)
-            st.markdown(f"<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+            st.slider('건축 년도를 선택해 주세요', min_value = 1940, max_value=2023, step=1)
             if st.button('현재 금리 적용'):
                 today = datetime.date.today()
             else:
@@ -65,25 +62,25 @@ def col_():
 def contents():
     tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
     with tab0:
+        col_()
         background()
-        col_(0)
     with tab1: 
-        tab1.subheader("📈Linear Regression📈")
+        tab1.subheader("Linear Regression")
         lr() 
     with tab2: 
-        tab2.subheader("🤝KNN🤝")
+        tab2.subheader("KNN")
         knn()
     with tab3:
-        tab3.subheader("🌲Decision Tree🌲")
+        tab3.subheader("Decision Tree")
         dct()
     with tab4:
-        tab4.subheader("🌳Random Forest🌳") 
+        tab4.subheader("Random Forest") 
         rdf()
     with tab5:
-        tab5.subheader("💪XGBoost💪") 
+        tab5.subheader("XGBoost") 
         xgb()
     with tab6: 
-        tab6.subheader("⚡️LightGBM⚡️")
+        tab6.subheader("LightGBM")
         lgbm()
         
 
