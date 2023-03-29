@@ -4,7 +4,7 @@ import glob
 
 @st.cache_data
 def read_data():
-    glob_pt = '/app/jaiwon880/ml_projiect/web/static/*.csv'
+    glob_pt = '/app/ml_projiect/jaiwon880/web/static/*.csv'
     return pd.concat([pd.read_csv(p) for p in sorted(glob.glob(glob_pt))])  
 
 
