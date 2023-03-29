@@ -5,9 +5,9 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-import xgboost as xgb
 from lightgbm import LGBMRegressor
 from xgboost import XGBRegressor
+import xgboost as xgb
 from data import get_city_list, get_gu_list, get_town_list, get_village_list
 from service import get_filtered_data, handle_preprocessing
 import datetime
@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 import joblib
 from ML_Model import *
+
 
 def main():
     with st.sidebar: sidebar()
@@ -63,7 +64,7 @@ def col_():
 
 
 def contents():
-    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['df',"Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
+    tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['DataFrame', "Linear Regressor", 'KNN', "Decision Tree", 'Random Forest', "XGBoost", "LightGBM"])
     
     with tab0:
         background()
