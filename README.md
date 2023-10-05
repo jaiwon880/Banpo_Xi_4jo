@@ -14,18 +14,17 @@
 - 주요 기능
   - 지역구 선택 -> 시/군/구 선택 -> 읍/면/동 선택 -> 모델에 따른 각 월 별 지역마다 거래 금액의 최고 값 예측
 
-
 - 팀원 소개 및 역할
-
 [](https://github.com/jaiwon880/Gangsil/assets/71927533/a2ca441a-488f-4c64-974e-a974829f087c)
 
 
-### 🛠️ Technology Stack
+#### 프로젝트 백로그
+[반포자이 사조 노션](https://jjae0510.notion.site/f2bc88685ba142759537c9ce51baaf50?pvs=4)
 
+#### 🛠️ Technology Stack
 - OS: Window
 - FrontEnd: Streamlit(Web)
 - Data: multi GPU(Colab))
-
 
 
 ### Design
